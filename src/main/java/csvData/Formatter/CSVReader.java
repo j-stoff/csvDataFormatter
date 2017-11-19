@@ -10,10 +10,12 @@ import java.util.List;
 public class CSVReader {
     private static final int MAX_NUMBER_OF_LINES_IN_LIST = 100;
     private String csvFileName;
-    private ArrayList<List> masterList;
+    private ArrayList<String> masterList;
+    private CSVFormatter formatter;
 
     public CSVReader() {
-        masterList = new ArrayList<List>();
+        masterList = new ArrayList<String>();
+        formatter = new CSVFormatter();
     }
 
     public CSVReader(String fileName) {
@@ -22,7 +24,7 @@ public class CSVReader {
     }
 
 
-    public List<List> getMasterList() {
+    public List<String> getMasterList() {
         return masterList;
     }
 
@@ -34,14 +36,18 @@ public class CSVReader {
         if (csvFileName == null) {
             csvFileName = fileName;
         }
-        ArrayList<String> lineList = null;
+
+        String data = null;
         try (BufferedReader input = new BufferedReader(new FileReader(fileName))) {
+            int counter = 0;
             while (input.ready()) {
-                lineList = new ArrayList<String>();
                 for (int index = 0; index < MAX_NUMBER_OF_LINES_IN_LIST; index++) {
-                    lineList.add(input.readLine());
+                    data = input.readLine();
+                    if (data != null && !data.isEmpty()) {
+                        data = formatter.formatLine(input.readLine());
+                        masterList.add(data);
+                    }
                 }
-                masterList.add(lineList);
             }
         } catch (IOException ioException) {
             ioException.printStackTrace();

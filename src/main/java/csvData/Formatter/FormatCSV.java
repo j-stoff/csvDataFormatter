@@ -32,21 +32,23 @@ public class FormatCSV {
         // Open the file, read contents
         reader.readFile(fileName);
 
-        List<List> master = reader.getMasterList();
+        List<String> master = reader.getMasterList();
 
-        sendDataToFormatter(master);
+        //sendDataToFormatter(master);
 
         // Create new output and amend as necessary
     }
 
-    private void sendDataToFormatter(List<List> master) {
-        formatter.formatList(master.get(0));
-        /*
-        for(List<String> lineList: master) {
-            formatter.formatList(lineList);
+    private void sendDataToFormatter(List<String> master) {
+        //formatter.formatList(master.get(0));
+        List<String> sortedList = formatter.sortList(master);
+        int counter = 0;
+        for (String value :
+                sortedList) {
+            counter += 1;
+            System.out.println(value + " " + counter);
         }
         System.out.println("Data formatted");
-        */
     }
 
 }
