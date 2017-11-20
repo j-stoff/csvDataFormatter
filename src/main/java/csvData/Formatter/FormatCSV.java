@@ -1,8 +1,11 @@
 package csvData.Formatter;
 
+import csvData.Data.CSVBookEntry;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FormatCSV {
@@ -10,6 +13,7 @@ public class FormatCSV {
     private CSVReader reader;
     private CSVWriter writer;
     private CSVFormatter formatter;
+    private List<CSVBookEntry> dataList;
 
     public FormatCSV() {
         reader = new CSVReader();
@@ -32,22 +36,55 @@ public class FormatCSV {
         // Open the file, read contents
         reader.readFile(fileName);
 
-        List<String> master = reader.getMasterList();
+        //List<CSVBookEntry> master = reader.getMasterList();
+        dataList = reader.getMasterList();
 
         //sendDataToFormatter(master);
+        formatter.sortList(dataList);
 
         // Create new output and amend as necessary
+        addCalculatedRatingColumn();
     }
 
-    private void sendDataToFormatter(List<String> master) {
-        //formatter.formatList(master.get(0));
-        List<String> sortedList = formatter.sortList(master);
+    private void addCalculatedRatingColumn() {
         int counter = 0;
-        for (String value :
-                sortedList) {
+        for (CSVBookEntry value :
+                dataList) {
             counter += 1;
             System.out.println(value + " " + counter);
         }
+
+
+
+
+        System.out.println("Added calculated column");
+    }
+
+    private void sendDataToFormatter(List<CSVBookEntry> master) {
+        //formatter.formatList(master.get(0));
+        //List<CSVBookEntry> sortedList = formatter.sortList(master);
+        formatter.sortList(master);
+
+
+        int counter = 0;
+        for (CSVBookEntry value :
+                master) {
+            //counter += 1;
+            System.out.println(value);
+        }
+
+        /*
+        int startIndex = 0;
+        int increaseFactor = sortedList.size() / 100;
+        int endIndex = increaseFactor;
+
+
+        while(endIndex < sortedList.size()) {
+            formatter.addCalculatedColumn(sortedList, startIndex, endIndex);
+            startIndex += increaseFactor;
+            endIndex += increaseFactor;
+        }
+        */
         System.out.println("Data formatted");
     }
 

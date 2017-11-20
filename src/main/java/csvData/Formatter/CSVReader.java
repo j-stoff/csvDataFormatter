@@ -1,5 +1,7 @@
 package csvData.Formatter;
 
+import csvData.Data.CSVBookEntry;
+
 import javax.sound.midi.SysexMessage;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -10,11 +12,11 @@ import java.util.List;
 public class CSVReader {
     private static final int MAX_NUMBER_OF_LINES_IN_LIST = 100;
     private String csvFileName;
-    private ArrayList<String> masterList;
+    private ArrayList<CSVBookEntry> masterList;
     private CSVFormatter formatter;
 
     public CSVReader() {
-        masterList = new ArrayList<String>();
+        masterList = new ArrayList<CSVBookEntry>();
         formatter = new CSVFormatter();
     }
 
@@ -24,7 +26,7 @@ public class CSVReader {
     }
 
 
-    public List<String> getMasterList() {
+    public List<CSVBookEntry> getMasterList() {
         return masterList;
     }
 
@@ -38,6 +40,7 @@ public class CSVReader {
         }
 
         String data = null;
+        CSVBookEntry entry = null;
         try (BufferedReader input = new BufferedReader(new FileReader(fileName))) {
             int counter = 0;
             while (input.ready()) {
@@ -45,7 +48,8 @@ public class CSVReader {
                     data = input.readLine();
                     if (data != null && !data.isEmpty()) {
                         data = formatter.formatLine(input.readLine());
-                        masterList.add(data);
+                        entry = formatter.makeBookEntry(data);
+                        masterList.add(entry);
                     }
                 }
             }

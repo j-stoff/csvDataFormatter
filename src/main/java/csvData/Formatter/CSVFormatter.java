@@ -1,6 +1,10 @@
 package csvData.Formatter;
 
+import csvData.Data.CSVBookEntry;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -8,8 +12,10 @@ import java.util.List;
  * the desired output.
  */
 public class CSVFormatter {
+    private RatingListComparator comparator;
 
     public CSVFormatter() {
+        comparator = new RatingListComparator();
     }
 
     public void formatList(List<String> list) {
@@ -33,6 +39,12 @@ public class CSVFormatter {
         String[] data = formattedLine.split(",");
         //System.out.println("Fields: " + data[3] + "  " + data[4]);
         return data[3] + "," + data[4];
+    }
+
+    public CSVBookEntry makeBookEntry(String data) {
+        double ratingValue = parseStringForDouble(data, 0);
+        int numberOfRatings = parseStringForInt(data, 1);
+        return new CSVBookEntry(ratingValue, numberOfRatings);
     }
 
     /*
@@ -61,17 +73,29 @@ public class CSVFormatter {
     }
     */
 
-    public List<String> sortList(List<String> ratings) {
-        List<String> output = new ArrayList<String>();
+    public void sortList(List<CSVBookEntry> ratings) {
+        /*
+        List<CSVBookEntry> output = new ArrayList<CSVBookEntry>();
         String[] split = null;
         int currentIndex;
-        int value;
+        int currentBookValue;
 
         // Seed value
-        output.add("0,0");
+        output.add(new CSVBookEntry(0,0));
 
-        for (String data :
+        for (CSVBookEntry book :
                 ratings) {
+            currentIndex = 0;
+            currentBookValue = book.getNumberOfRatings();
+            for (CSVBookEntry outBook :
+                    output) {
+                if (currentBookValue <= outBook.getNumberOfRatings()) {
+                    currentIndex += 1;
+                } else  {
+                    output.add(currentIndex, book);
+                }
+            }
+            /*
             value = parseStringForInt(data, 1);
             currentIndex = 0;
 
@@ -93,6 +117,7 @@ public class CSVFormatter {
 
             }
 
+
         }
 
         // Remove seed value, is the last value always.
@@ -100,6 +125,9 @@ public class CSVFormatter {
         output.remove(size - 1);
 
         return output;
+        */
+        //List.sort(ratings, comparator);
+        ratings.sort(comparator);
     }
 
     public int parseStringForInt(String input, int indexPosition) {
@@ -110,13 +138,33 @@ public class CSVFormatter {
         return Integer.parseInt(split[indexPosition]);
     }
 
-    public void addCalculatedColumn(List<String> ratingList) {
-        // Some for loop that takes in the list, a start position, and end position, calls
-        // get(position) and finds the average from start to ending positions.
+    public double parseStringForDouble(String input, int indexPosition) {
+        String[] split = input.split(",");
+        if (split[1].contains(".")) {
+            return 0;
+        }
+        return Double.parseDouble(split[indexPosition]);
+    }
 
+    public void addCalculatedColumn(List<CSVBookEntry> ratingList, int startPosition, int endPosition) {
         // use list.size() to get the max size and loop through calling the method to calculate the average
         // Then add the average to those columns
+        /*
+        int realEndPosition;
 
+        if (endPosition > ratingList.size()) {
+            realEndPosition = ratingList.size() - 1;
+        } else {
+            realEndPosition = endPosition;
+        }
+
+        int medianIndex = (startPosition + realEndPosition) / 2;
+        String medianEntry = ratingList.get(medianIndex);
+        String[] medianSplit = medianEntry.split(",");
+        int medianValue = Integer.parseInt(medianSplit[1]);
+
+        // Update values from the start position to have as 3rd partion to the string
+        */
     }
 
 
@@ -138,3 +186,6 @@ public class CSVFormatter {
         return result;
     }
 }
+
+
+
