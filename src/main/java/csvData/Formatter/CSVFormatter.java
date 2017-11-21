@@ -12,160 +12,94 @@ import java.util.List;
  * the desired output.
  */
 public class CSVFormatter {
-    private RatingListComparator comparator;
+    private static final int GOOD_ENOUGH_LIMIT = 1000;
 
+    /**
+     * No argument constructor
+     */
     public CSVFormatter() {
-        comparator = new RatingListComparator();
     }
 
-    public void formatList(List<String> list) {
-        int index;
-        ArrayList<String> outList = new ArrayList<String>();
-
-        for (index = 0; index < list.size(); index++) {
-            if (list.get(index) != null && !list.get(index).isEmpty()) {
-                outList.add(formatLine(list.get(index)));
-            }
-        }
-
-        //formatLine(list.get(0));
-        //int median = calculateMedianRatings(outList);
-
-        //System.out.println(median);
-    }
-
-    public String formatLine(String line) {
+    /**
+     * Retrieves specific pieces of the data based on the input indecies.
+     * @param line the string of data to be parsed, must be in CSV format.
+     * @return
+     */
+    public CSVBookEntry formatLine(String line, int ratingIndex, int numberOfRatingsIndex) {
         String formattedLine = removeStrings(line);
-        String[] data = formattedLine.split(",");
-        //System.out.println("Fields: " + data[3] + "  " + data[4]);
-        return data[3] + "," + data[4];
+        double rating = parseStringForDouble(formattedLine, ratingIndex);
+        int numberOfRatings = parseStringForInt(formattedLine, numberOfRatingsIndex);
+
+        CSVBookEntry entry = new CSVBookEntry(rating, numberOfRatings);
+        return entry;
     }
 
-    public CSVBookEntry makeBookEntry(String data) {
-        double ratingValue = parseStringForDouble(data, 0);
-        int numberOfRatings = parseStringForInt(data, 1);
-        return new CSVBookEntry(ratingValue, numberOfRatings);
-    }
 
-    /*
-    public String addValuesToList(String line) {
-        String formattedLine = removeStrings(line);
-        String[] data = formattedLine.split(",");
-
-        return data[3] + ","  +data[4];
-    }
-    */
-
-    /*
-    public int calculateMedianRatings(List<String> ratings) {
-        int numberOfItems = 0;
-        int total = 0;
-
-        for (String value:
-             ratings) {
-            numberOfItems += 1;
-            String[] data = value.split(",");
-            total += Integer.parseInt(data[1]);
-        }
-
-        return total / numberOfItems;
-
-    }
-    */
-
-    public void sortList(List<CSVBookEntry> ratings) {
-        /*
-        List<CSVBookEntry> output = new ArrayList<CSVBookEntry>();
-        String[] split = null;
-        int currentIndex;
-        int currentBookValue;
-
-        // Seed value
-        output.add(new CSVBookEntry(0,0));
-
-        for (CSVBookEntry book :
-                ratings) {
-            currentIndex = 0;
-            currentBookValue = book.getNumberOfRatings();
-            for (CSVBookEntry outBook :
-                    output) {
-                if (currentBookValue <= outBook.getNumberOfRatings()) {
-                    currentIndex += 1;
-                } else  {
-                    output.add(currentIndex, book);
-                }
-            }
-            /*
-            value = parseStringForInt(data, 1);
-            currentIndex = 0;
-
-            for (String entry :
-                    output) {
-                if (currentIndex == output.size()) {
-                    output.add(currentIndex, data);
-                    break;
-                }
-
-                int outputListValue = parseStringForInt(output.get(currentIndex), 1);
-
-                if (value <= outputListValue) {
-                    currentIndex += 1;
-                } else {
-                    output.add(currentIndex, data);
-                    break;
-                }
-
-            }
-
-
-        }
-
-        // Remove seed value, is the last value always.
-        int size = output.size();
-        output.remove(size - 1);
-
-        return output;
-        */
-        //List.sort(ratings, comparator);
-        ratings.sort(comparator);
-    }
-
+    /**
+     * Helper method to take an input string, split the string based on a comma, and return the value as a parsed int.
+     * @param input The string input to be split.
+     * @param indexPosition the position to be called in the split array.
+     * @return the value at the split index position as an int.
+     */
     public int parseStringForInt(String input, int indexPosition) {
-        String[] split = input.split(",");
-        if (split[1].contains(".")) {
+        if (input == null || input.isEmpty()) {
             return 0;
         }
+        String[] split = input.split(",");
+        if (split[4].contains(".")) {
+            return 0;
+        }
+
         return Integer.parseInt(split[indexPosition]);
     }
 
+
+    /**
+     * Helper method to take an input string, split the string base on a comma, and return the value parsed from string
+     * to double.
+     * @param input the string to be parsed and converted.
+     * @param indexPosition the position of the split array to be converted and returned.
+     * @return the value of split index position as a double.
+     */
     public double parseStringForDouble(String input, int indexPosition) {
         String[] split = input.split(",");
-        if (split[1].contains(".")) {
+        String out = split[indexPosition];
+        if (out.isEmpty()) {
             return 0;
         }
-        return Double.parseDouble(split[indexPosition]);
+        return Double.parseDouble(out);
     }
 
-    public void addCalculatedColumn(List<CSVBookEntry> ratingList, int startPosition, int endPosition) {
-        // use list.size() to get the max size and loop through calling the method to calculate the average
-        // Then add the average to those columns
-        /*
-        int realEndPosition;
+    /**
+     * A method to fill in the calculated columns within a CSVBookEntry item within the list passed in.
+     * The method splits the list into 100 portions, finds the median index of each portion and gets that CSVBookEntry's
+     * number of ratings to use a value to multiply for the rest of the portion.
+     * @param ratingList the list with entries to be edited.
+     */
+    public void addCalculatedColumns(List<CSVBookEntry> ratingList) {
+        int increaseFactor = ratingList.size() / 100;
+        int startPosition = 0;
+        int endPosition = increaseFactor;
 
-        if (endPosition > ratingList.size()) {
-            realEndPosition = ratingList.size() - 1;
-        } else {
-            realEndPosition = endPosition;
+        for (int index = 0; index < 100; index += 1) {
+            int medianIndex = (startPosition + endPosition) / 2;
+            CSVBookEntry medianEntry = ratingList.get(medianIndex);
+            int medianValue = medianEntry.getNumberOfRatings();
+            for (int innerIndex = startPosition; innerIndex <= endPosition; innerIndex += 1) {
+                CSVBookEntry currentEntry = ratingList.get(innerIndex);
+                int ratingValue = (int)(medianValue * currentEntry.getRating());
+                currentEntry.setRatingValue(ratingValue);
+                if (ratingValue > GOOD_ENOUGH_LIMIT) {
+                    currentEntry.setConsideredGood(1);
+                } else {
+                    currentEntry.setConsideredGood(0);
+                }
+            }
+            startPosition += increaseFactor;
+            endPosition += increaseFactor;
         }
-
-        int medianIndex = (startPosition + realEndPosition) / 2;
-        String medianEntry = ratingList.get(medianIndex);
-        String[] medianSplit = medianEntry.split(",");
-        int medianValue = Integer.parseInt(medianSplit[1]);
-
-        // Update values from the start position to have as 3rd partion to the string
-        */
     }
+
 
 
     /**

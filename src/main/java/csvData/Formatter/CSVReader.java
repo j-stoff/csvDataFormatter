@@ -9,48 +9,48 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A class that is designed to read CSV files. Really simple right now.
+ */
 public class CSVReader {
-    private static final int MAX_NUMBER_OF_LINES_IN_LIST = 100;
-    private String csvFileName;
     private ArrayList<CSVBookEntry> masterList;
     private CSVFormatter formatter;
 
+    /**
+     * No argument constructor. Initializes an empty array list to fill the CSV data with. Also makes a CSVFormatter class
+     * with which to help parse the data and create CSVBookEntry items to add to the list.
+     */
     public CSVReader() {
         masterList = new ArrayList<CSVBookEntry>();
         formatter = new CSVFormatter();
     }
 
-    public CSVReader(String fileName) {
-        this();
-        csvFileName = fileName;
-    }
 
-
+    /**
+     * Retrieval method for the list created by reading the CSV file.
+     * @return the list with all csv data.
+     */
     public List<CSVBookEntry> getMasterList() {
         return masterList;
     }
 
     /**
-     * Overlapping method that calls all others.
+     * Read in a file and add the values to a list of CSVBookEntry type.
      * @param fileName the file to read.
      */
     public void readFile(String fileName) {
-        if (csvFileName == null) {
-            csvFileName = fileName;
+        if (fileName == null || fileName.isEmpty()) {
+            return;
         }
 
         String data = null;
         CSVBookEntry entry = null;
         try (BufferedReader input = new BufferedReader(new FileReader(fileName))) {
-            int counter = 0;
             while (input.ready()) {
-                for (int index = 0; index < MAX_NUMBER_OF_LINES_IN_LIST; index++) {
-                    data = input.readLine();
-                    if (data != null && !data.isEmpty()) {
-                        data = formatter.formatLine(input.readLine());
-                        entry = formatter.makeBookEntry(data);
-                        masterList.add(entry);
-                    }
+                data = input.readLine();
+                if (data != null && !data.isEmpty()) {
+                    entry = formatter.formatLine(input.readLine(), 3, 4);
+                    masterList.add(entry);
                 }
             }
         } catch (IOException ioException) {
@@ -58,6 +58,5 @@ public class CSVReader {
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-        System.out.println("Read file complete");
     }
 }

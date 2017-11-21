@@ -2,90 +2,51 @@ package csvData.Formatter;
 
 import csvData.Data.CSVBookEntry;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller class for the CSVFormatter program. Creates a reader to read the file, uses a formatter class to
+ * add the calculated columns to items within the list. Creates a writer class to output the file.
+ */
 public class FormatCSV {
-    private String csvFileName;
     private CSVReader reader;
     private CSVWriter writer;
     private CSVFormatter formatter;
-    private List<CSVBookEntry> dataList;
+    private RatingListComparator comparator;
 
+    /**
+     * No argument constructor. Initializes a reader, writer, formatter, and comparator for use.
+     */
     public FormatCSV() {
         reader = new CSVReader();
         writer = new CSVWriter();
         formatter = new CSVFormatter();
+        comparator = new RatingListComparator();
     }
 
+    /**
+     * Main method for the CSVFormatter program. Platform method that everything starts from.
+     * @param args command line arguments. Ends if any other number of arguments except 1 is passed.
+     */
     public void getDataFromRunner(String[] args) {
         if (args.length != 1) {
             System.out.println("Invalid arguments, should be csv file only");
             return;
         }
+        System.out.println("Beginning file read");
 
-        csvFileName = args[0];
+        reader.readFile(args[0]);
 
-        parseFile(csvFileName);
+        List<CSVBookEntry> dataList = reader.getMasterList();
+
+        dataList.sort(comparator);
+
+        formatter.addCalculatedColumns(dataList);
+
+        writer.writeToFile(dataList, "final_data.csv");
+
+        System.out.println("Finished converting CSV file");
     }
 
-    public void parseFile(String fileName) {
-        // Open the file, read contents
-        reader.readFile(fileName);
-
-        //List<CSVBookEntry> master = reader.getMasterList();
-        dataList = reader.getMasterList();
-
-        //sendDataToFormatter(master);
-        formatter.sortList(dataList);
-
-        // Create new output and amend as necessary
-        addCalculatedRatingColumn();
-    }
-
-    private void addCalculatedRatingColumn() {
-        int counter = 0;
-        for (CSVBookEntry value :
-                dataList) {
-            counter += 1;
-            System.out.println(value + " " + counter);
-        }
-
-
-
-
-        System.out.println("Added calculated column");
-    }
-
-    private void sendDataToFormatter(List<CSVBookEntry> master) {
-        //formatter.formatList(master.get(0));
-        //List<CSVBookEntry> sortedList = formatter.sortList(master);
-        formatter.sortList(master);
-
-
-        int counter = 0;
-        for (CSVBookEntry value :
-                master) {
-            //counter += 1;
-            System.out.println(value);
-        }
-
-        /*
-        int startIndex = 0;
-        int increaseFactor = sortedList.size() / 100;
-        int endIndex = increaseFactor;
-
-
-        while(endIndex < sortedList.size()) {
-            formatter.addCalculatedColumn(sortedList, startIndex, endIndex);
-            startIndex += increaseFactor;
-            endIndex += increaseFactor;
-        }
-        */
-        System.out.println("Data formatted");
-    }
 
 }
