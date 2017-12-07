@@ -23,14 +23,18 @@ public class CSVFormatter {
     /**
      * Retrieves specific pieces of the data based on the input indecies.
      * @param line the string of data to be parsed, must be in CSV format.
-     * @return
+     * @return the new CSVEntry.
      */
-    public CSVBookEntry formatLine(String line, int ratingIndex, int numberOfRatingsIndex) {
-        String formattedLine = removeStrings(line);
-        double rating = parseStringForDouble(formattedLine, ratingIndex);
-        int numberOfRatings = parseStringForInt(formattedLine, numberOfRatingsIndex);
+    public CSVBookEntry formatLine(String line, int authorIndex, int ratingIndex, int numberOfRatingsIndex) {
+        String[] splitLine = line.split("\t");
+        String authorName = splitLine[authorIndex];
+        authorName = authorName.substring(1, authorName.length() - 1);
+        double rating = Double.parseDouble(splitLine[ratingIndex]);
+        int numberOfRatings = Integer.parseInt(splitLine[numberOfRatingsIndex]);
 
-        CSVBookEntry entry = new CSVBookEntry(rating, numberOfRatings);
+        CSVBookEntry entry = new CSVBookEntry(authorName, rating, numberOfRatings);
+
+        System.out.println(entry.getAuthorName());
         return entry;
     }
 

@@ -4,6 +4,7 @@ package csvData.Data;
  * Data storage class for the CSVFormatter.
  */
 public class CSVBookEntry {
+    private String authorName;
     private double rating;
     private int numberOfRatings;
     private int ratingValue;
@@ -20,7 +21,8 @@ public class CSVBookEntry {
      * @param givenRating the passed rating as a double.
      * @param givenNumberOfRatings the passed number of ratings as an int.
      */
-    public CSVBookEntry(double givenRating, int givenNumberOfRatings) {
+    public CSVBookEntry(String author, double givenRating, int givenNumberOfRatings) {
+        authorName = author;
         rating = givenRating;
         numberOfRatings = givenNumberOfRatings;
     }
@@ -32,11 +34,28 @@ public class CSVBookEntry {
      * @param givenRatingValue the calculated value of this rating times median value.
      * @param givenConsideredGood 1 if the book is above the threshold, 0 if it not.
      */
-    public CSVBookEntry(double givenRating, int givenNumberOfRatings, int givenRatingValue, int givenConsideredGood) {
+    public CSVBookEntry(String author, double givenRating, int givenNumberOfRatings, int givenRatingValue, int givenConsideredGood) {
+        authorName = author;
         rating = givenRating;
         numberOfRatings = givenNumberOfRatings;
         ratingValue = givenRatingValue;
         consideredGood = givenConsideredGood;
+    }
+
+    /**
+     * Getter for the author's name
+     * @return author name field.
+     */
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    /**
+     * Setter for the author name.
+     * @param authorName the new author name.
+     */
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 
     /**
@@ -125,6 +144,6 @@ public class CSVBookEntry {
      * @return String in CSV format. (rating, numberOfRatings, ratingValue, consideredGood)
      */
     public String toCSVString() {
-        return rating + "," + numberOfRatings + "," + ratingValue + "," + consideredGood;
+        return "\"" + authorName +"\"," + rating + "," + numberOfRatings + "," + ratingValue + "," + consideredGood;
     }
 }

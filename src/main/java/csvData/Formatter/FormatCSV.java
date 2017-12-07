@@ -43,7 +43,7 @@ public class FormatCSV {
 
         formatter.addCalculatedColumns(dataList);
 
-        writer.writeToFile(dataList, "final_data.csv");
+        writer.writeToFile(dataList, "final_data_with_author.csv");
 
         System.out.println("Finished converting CSV file");
     }

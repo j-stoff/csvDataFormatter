@@ -49,7 +49,7 @@ public class CSVReader {
             while (input.ready()) {
                 data = input.readLine();
                 if (data != null && !data.isEmpty()) {
-                    entry = formatter.formatLine(input.readLine(), 3, 4);
+                    entry = formatter.formatLine(input.readLine(), 0, 1, 2);
                     masterList.add(entry);
                 }
             }
